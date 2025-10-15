@@ -1,2 +1,0 @@
-/Users/wanxt/app/package/wxtpush/client_sdk/example/android/app/.cxx/Debug/2r6b1k47/armeabi-v7a/CMakeFiles/edit_cache.dir
-/Users/wanxt/app/package/wxtpush/client_sdk/example/android/app/.cxx/Debug/2r6b1k47/armeabi-v7a/CMakeFiles/rebuild_cache.dir

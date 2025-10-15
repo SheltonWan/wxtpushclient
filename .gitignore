@@ -1,0 +1,160 @@
+# Flutter 项目 .gitignore
+
+# Dart & Flutter 生成的文件
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+.pub-cache/
+.pub/
+/build/
+
+# Flutter 特定文件
+lib/generated_plugin_registrant.dart
+pubspec.lock
+
+# 平台特定的 build 目录
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/Runner.ipa
+**/web/
+
+# Android 相关
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/key.properties
+**/android/app/.cxx/
+**/android/**/.cxx/
+
+# Android Studio
+**/android/.idea/
+**/android/**/.idea/
+*.iml
+**/android/**/*.iml
+
+# iOS 相关
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/**/.symlinks/
+**/ios/**/Flutter/ephemeral/
+**/ios/**/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS 相关
+**/macos/Flutter/ephemeral/
+**/macos/Pods/
+
+# Windows 相关
+**/windows/flutter/ephemeral/
+
+# Linux 相关
+**/linux/flutter/ephemeral/
+
+# Web 相关
+**/web/
+
+# VS Code 特定
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/c_cpp_properties.json
+
+# IntelliJ IDEA
+**/.idea/
+*.iws
+*.ipr
+
+# 临时和日志文件
+*.log
+*.tmp
+*.temp
+*~
+
+# macOS 系统文件
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows 系统文件
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# 依赖管理
+node_modules/
+
+# Firebase
+**/android/app/google-services.json
+**/ios/Runner/GoogleService-Info.plist
+**/ios/firebase_app_id_file.json
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+
+# 环境配置
+.env
+.env.local
+.env.*.local
+
+# 密钥和证书
+*.p8
+*.p12
+*.key
+*.pem
+*.keystore
+*.jks
+
+# Gradle 缓存和锁文件
+.gradle/
+**/.gradle/
+gradle/
+gradlew
+gradlew.bat
+local.properties
+
+# CMake
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+project.xcworkspace/
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# Flutter 分析
+.flutter-devtools/
+
+# 文档生成
+doc/api/
+
+# 个人开发文件（可选）
+todo.txt
+notes.txt
+scratch/

@@ -1,9 +1,6 @@
-group 'com.wxtpush.client'
-version '1.0.0'
-
 buildscript {
     ext.kotlin_version = '1.9.10' // Updated Kotlin version
-   
+
     repositories {
         google()
         mavenCentral()

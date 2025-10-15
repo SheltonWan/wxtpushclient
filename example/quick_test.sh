@@ -14,7 +14,7 @@ adb -s $DEVICE logcat | grep -E "(HuaweiPush|Token|初始化|HMS|WxtpushClient)"
 LOGCAT_PID=$!
 
 echo "4. 重新运行应用..."
-cd /Users/sheltonwan/Desktop/app/package/wxtpush/client_sdk/example
+cd /Users/sheltonwan/Desktop/app/package/wxtpushclient/example
 flutter run -d $DEVICE &
 FLUTTER_PID=$!
 
