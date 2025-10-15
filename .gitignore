@@ -158,3 +158,5 @@ doc/api/
 todo.txt
 notes.txt
 scratch/
+.vscode/extensions.json
+.vscode/settings.json
