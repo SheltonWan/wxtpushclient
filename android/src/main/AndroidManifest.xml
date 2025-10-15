@@ -1,0 +1,141 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.wxtpush.client">
+
+    <!-- ===== 基础网络权限 ===== -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <!-- ===== 通用推送权限 ===== -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- ===== 华为推送权限 ===== -->
+    <uses-permission android:name="com.huawei.hms.permission.BIND_PUSH_SERVICE" />
+    <uses-permission android:name="com.huawei.android.launcher.permission.CHANGE_BADGE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- ===== 荣耀推送权限 ===== -->
+    <uses-permission android:name="com.hihonor.push.permission.BIND_PUSH_SERVICE" />
+    <uses-permission android:name="com.hihonor.push.permission.READ_PUSH_NOTIFICATION_INFO" />
+
+    <!-- ===== 小米推送权限 ===== -->
+    <uses-permission android:name="com.xiaomi.xmsf.permission.MIPUSH_RECEIVE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+
+    <!-- ===== OPPO推送权限 ===== -->
+    <uses-permission android:name="com.coloros.mcs.permission.RECEIVE_MCS_MESSAGE" />
+    <uses-permission android:name="com.heytap.mcs.permission.RECEIVE_MCS_MESSAGE" />
+
+    <!-- ===== VIVO推送权限 ===== -->
+    <uses-permission android:name="com.vivo.pushclient.permission.RECEIVE" />
+    
+    <application>
+        <!-- OPPO/Heytap 推送（如需在插件清单声明，示例，实际建议在宿主App清单中配置） -->
+       
+        <!-- <service
+            android:name="com.wxtpush.client.push.vendors.OppoMessageService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.heytap.mcs.action.RECEIVE_MCS_MESSAGE" />
+                <action android:name="com.coloros.mcs.action.RECIEVE_MCS_MESSAGE" />
+            </intent-filter>
+        </service> -->
+
+        <!-- 小米推送配置 -->
+        <meta-data
+            android:name="MIPUSH_APPID"
+            android:value="${XIAOMI_APP_ID}" />
+        <meta-data
+            android:name="MIPUSH_APPKEY"
+            android:value="${XIAOMI_APP_KEY}" />
+
+        <!-- OPPO推送配置（Heytap新版命名）-->
+        <meta-data
+            android:name="com.heytap.mcs.appkey"
+            android:value="${OPPO_APP_KEY}" />
+        <meta-data
+            android:name="com.heytap.mcs.appsecret"
+            android:value="${OPPO_APP_SECRET}" />
+
+        <!-- 兼容旧版SDK读取的 ColorOS 命名 -->
+        <meta-data
+            android:name="com.coloros.mcs.appkey"
+            android:value="${OPPO_APP_KEY}" />
+        <meta-data
+            android:name="com.coloros.mcs.appsecret"
+            android:value="${OPPO_APP_SECRET}" />
+
+        <!-- HMS客户端元数据配置 -->
+        <!-- 注意: 实际使用时需要从agconnect-services.json获取正确的App ID -->
+        <!-- Huawei Push required: value must be in format appid=XXXX and match agconnect-services.json -->
+        <meta-data android:name="com.huawei.hms.client.appid" android:value="appid=${HUAWEI_APP_ID}" />
+        <meta-data android:name="com.hihonor.push.app_id" android:value="${HONOR_APP_ID}" />
+            
+        <!-- 荣耀推送消息服务 (基于HMS) -->
+        <service
+            android:name="com.wxtpush.client.push.vendors.HonorMessageService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- 华为推送消息服务 (HMS)  — 缺失会导致 onMessageReceived 永远不触发 -->
+        <service
+            android:name="com.wxtpush.client.push.vendors.HuaweiMessageService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        
+        <!-- ===== 配置提供器 ===== -->
+        <provider
+            android:name="com.wxtpush.client.WxtpushConfigProvider"
+            android:authorities="${applicationId}.wxtpush.config"
+            android:exported="false"
+            android:initOrder="100" />
+
+        <!-- 小米推送消息服务 -->
+        <service
+            android:name="com.wxtpush.client.push.vendors.XiaomiMessageService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":pushservice">
+            <intent-filter>
+                <action android:name="com.xiaomi.mipush.RECEIVE_MESSAGE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.xiaomi.mipush.MESSAGE_ARRIVED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.xiaomi.mipush.ERROR" />
+            </intent-filter>
+        </service>
+
+        <!-- 小米推送广播接收器 - 插件内部实现，客户端无需配置 -->
+        <receiver
+            android:name="com.wxtpush.client.push.vendors.XiaomiPushMessageReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.xiaomi.mipush.RECEIVE_MESSAGE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.xiaomi.mipush.MESSAGE_ARRIVED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.xiaomi.mipush.ERROR" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.xiaomi.mipush.REGISTRATION_SUCCESS" />
+            </intent-filter>
+        </receiver>
+        
+    </application>
+</manifest>

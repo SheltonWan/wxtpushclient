@@ -1,0 +1,121 @@
+group 'com.wxtpush.client'
+version '1.0.0'
+
+buildscript {
+    ext.kotlin_version = '1.9.10' // Updated Kotlin version
+   
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://developer.hihonor.com/repo/' }
+        maven { url 'https://developer.huawei.com/repo/' }
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+// 为当前模块显式声明仓库（含内置 vendor-repo），避免外部工程不生效的情况
+repositories {
+    google()
+    mavenCentral()
+    maven { url 'https://developer.huawei.com/repo/' }
+    maven { url 'https://developer.hihonor.com/repo/' }
+    maven { url 'https://maven.heytapmobi.com/repository/maven-public/' }
+    maven { url 'https://maven.oppo.com/repository/maven-public/' }
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://repo1.maven.org/maven2/' }
+    maven { url 'https://maven.aliyun.com/repository/central' }
+    maven { url 'https://maven.aliyun.com/repository/public/' }
+    maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+    maven { url 'https://jcenter.bintray.com/' }
+    maven { url 'https://mirrors.tencent.com/nexus/repository/maven-public/' }
+    maven { url 'https://mirrors.huaweicloud.com/repository/maven/' }
+    // 关键：插件内置的本地 Maven 仓库
+    maven { url uri("$projectDir/vendor-repo") }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'maven-publish'
+
+android {
+    namespace 'com.wxtpush.client'
+    compileSdkVersion 34
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions { jvmTarget = '1.8' }
+
+    sourceSets { main.java.srcDirs += 'src/main/kotlin' }
+
+    defaultConfig {
+        minSdkVersion 21
+        // 将混淆规则作为 consumer 规则传递给宿主
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+}
+
+// 将第三方厂商 AAR 发布到插件自带的本地 Maven 仓库 vendor-repo
+publishing {
+    publications {
+        xiaomi(MavenPublication) {
+            groupId = 'com.wxtpush.vendor'
+            artifactId = 'xiaomi-push'
+            version = '6.0.1-3rd'
+            artifact("$projectDir/libs/MiPush_SDK_Client_6_0_1-C_3rd.aar")
+            pom { packaging = 'aar' }
+        }
+        heytap(MavenPublication) {
+            groupId = 'com.wxtpush.vendor'
+            artifactId = 'heytap-push'
+            version = '3.7.1'
+            artifact("$projectDir/libs/com.heytap.msp_V3.7.1.aar")
+            pom { packaging = 'aar' }
+        }
+        vivo(MavenPublication) {
+            groupId = 'com.wxtpush.vendor'
+            artifactId = 'vivo-push'
+            version = '4.1.0.0'
+            artifact("$projectDir/libs/vpush-4.1.0.0.aar")
+            pom { packaging = 'aar' }
+        }
+    }
+    repositories { maven { url = uri("$projectDir/vendor-repo") } }
+}
+
+// 集中所有厂商推送SDK依赖，简化客户端应用配置
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+    // 基础依赖
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core:1.10.1'
+    implementation 'androidx.annotation:annotation:1.6.0'
+
+    // 协程支持
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+
+    // ===== 华为/荣耀 推送SDK（完全封装） =====
+    implementation 'com.huawei.hms:push:6.12.0.300'
+    implementation 'com.huawei.hms:hianalytics:6.12.0.300'
+    implementation 'com.hihonor.mcs:push:8.0.12.307'
+
+    // ===== 厂商 AAR（来自插件内置仓库） =====
+    implementation 'com.wxtpush.vendor:xiaomi-push:6.0.1-3rd@aar'
+    implementation 'com.wxtpush.vendor:heytap-push:3.7.1@aar'
+    implementation 'com.wxtpush.vendor:vivo-push:4.1.0.0@aar'
+
+    // OPPO 运行时依赖
+    implementation 'commons-codec:commons-codec:1.15'
+
+    // 通用
+    implementation 'androidx.work:work-runtime-ktx:2.8.1'
+    implementation 'androidx.lifecycle:lifecycle-service:2.6.2'
+}

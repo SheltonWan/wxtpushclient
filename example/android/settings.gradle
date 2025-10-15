@@ -1,0 +1,49 @@
+// 默认配置
+pluginManagement {
+    def flutterSdkPath = {
+        def properties = new Properties()
+        file("local.properties").withInputStream { properties.load(it) }
+        def flutterSdkPath = properties.getProperty("flutter.sdk")
+        assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
+        return flutterSdkPath
+    }()
+    // 默认配置
+    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+    // 默认配置
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+        // 可选：如果需要解析华为插件，可加
+        // maven { url 'https://developer.huawei.com/repo/' }
+    }
+}
+// 默认配置
+plugins {
+    id "dev.flutter.flutter-plugin-loader" version "1.0.0"
+    id "com.android.application" version "8.2.2" apply false
+    id "org.jetbrains.kotlin.android" version "1.9.10" apply false
+}
+
+// dependencyResolutionManagement {
+//     repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+//     repositories {
+//         google()
+//         mavenCentral()
+//         //多个第三方镜像（如 heytap/hehonor/oppo/aliyun）是否必须，取决于您是否需要在示例 app 构建时解析这些厂商的 SDK
+//         //如果这些仓库只是提供插件模块（client_sdk/android）或插件内部依赖（AAR）所需的库，把它们放到插件模块的 repositories 即可，示例 app 不需要重复声明。
+//         // maven { url 'https://developer.hihonor.com/repo/' }
+//         // maven { url 'https://maven.heytapmobi.com/repository/maven-public/' }
+//         // maven { url 'https://maven.oppo.com/repository/maven-public/' }
+//         // maven { url 'https://maven.aliyun.com/repository/public' }
+//         // maven { url 'https://maven.aliyun.com/repository/central' }
+//         // 关键：指向插件模块的本地 Maven 仓库（相对 example/android）
+//         maven { url uri("${rootDir}/../../android/vendor-repo") }
+//     }
+// }
+
+// 默认配置
+// 定义项目的模块结构，告诉 Gradle 当前项目包含哪些模块
+// 如果新增模块（如一个本地库），必须在此文件中通过 include声明。
+// 文件修改后需要同步（Sync Project）才能生效。
+include ":app"

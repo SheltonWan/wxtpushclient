@@ -1,0 +1,72 @@
+// 配置全局构建规则和依赖仓库，定义所有模块共享的构建逻辑。
+
+// buildscript中的依赖仅用于构建过程（如 Gradle 插件），而非项目代码
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://developer.hihonor.com/repo/' }
+        maven { url 'https://developer.huawei.com/repo/' }
+        // 小米推送仓库
+        maven { url 'https://repo1.maven.org/maven2/' }
+        // Heytap/OPPO 推送仓库（若需正式SDK）
+        // maven { url 'https://maven.aliyun.com/repository/public' }
+        maven {
+            url 'https://maven.columbus.heytapmobi.com/repository/releases/'
+            credentials {
+                username 'nexus'
+                password 'c0b08da17e3ec36c3870fed674a0bcb36abc2e23'
+            }
+        }
+    }
+
+    // 配置项目级依赖
+    dependencies {
+        // Android Gradle插件
+        classpath 'com.android.tools.build:gradle:8.2.2'
+        // Kotlin插件
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10"
+        // AGConnect插件 - 荣耀推送必需（使用华为仓库版本）
+        classpath 'com.huawei.agconnect:agcp:1.9.1.300'
+    }
+}
+
+// 默认配置
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+// 默认配置
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+// 默认配置
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
+// 默认配置
+// allprojects中的配置会应用到所有模块（如仓库地址）
+allprojects {
+    // 默认配置,定义仓库地址
+    repositories {
+        google()
+        mavenCentral()
+
+        //以下用户添加
+        maven { url 'https://developer.hihonor.com/repo/' }
+        maven { url 'https://developer.huawei.com/repo/' }
+        // 小米推送仓库
+        maven { url 'https://repo1.maven.org/maven2/' }
+        // OPPO和VIVO推送的公共仓库
+        // maven { url 'https://maven.aliyun.com/repository/public' }
+        maven {
+            url 'https://maven.columbus.heytapmobi.com/repository/releases/'
+            credentials {
+                username 'nexus'
+                password 'c0b08da17e3ec36c3870fed674a0bcb36abc2e23'
+            }
+        }
+        // JitPack仓库用于开源库
+        maven { url 'https://jitpack.io' }
+    }
+}

@@ -1,0 +1,2 @@
+/Users/wanxt/app/package/wxtpush/client_sdk/example/android/app/.cxx/Debug/2r6b1k47/x86/CMakeFiles/edit_cache.dir
+/Users/wanxt/app/package/wxtpush/client_sdk/example/android/app/.cxx/Debug/2r6b1k47/x86/CMakeFiles/rebuild_cache.dir

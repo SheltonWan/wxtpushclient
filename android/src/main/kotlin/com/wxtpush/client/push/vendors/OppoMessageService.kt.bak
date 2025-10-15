@@ -1,0 +1,73 @@
+package com.wxtpush.client.push.vendors
+
+import android.content.Context
+import android.util.Log
+import com.coloros.mcssdk.callback.PushAdapter
+import com.coloros.mcssdk.message.DataMessage
+import com.wxtpush.client.push.PushManager
+
+/**
+ * OPPO推送消息接收服务
+ */
+class OppoMessageService : PushAdapter() {
+    
+    private val TAG = "OppoMessageService"
+    
+    override fun processMessage(context: Context?, dataMessage: DataMessage?) {
+        super.processMessage(context, dataMessage)
+        
+        Log.d(TAG, "收到OPPO推送消息: $dataMessage")
+        
+        dataMessage?.let { message ->
+            try {
+                val messageData = mutableMapOf<String, Any>()
+                
+                // 消息基本信息
+                messageData["messageId"] = message.messageID ?: ""
+                messageData["title"] = message.title ?: ""
+                messageData["content"] = message.content ?: ""
+                messageData["vendor"] = "oppo"
+                
+                // 自定义数据
+                val customData = mutableMapOf<String, String>()
+                message.appPackage?.let { customData["appPackage"] = it }
+                message.taskID?.let { customData["taskID"] = it }
+                message.timestamp?.let { customData["timestamp"] = it.toString() }
+                
+                if (customData.isNotEmpty()) {
+                    messageData["customData"] = customData
+                }
+                
+                // 通知PushManager处理消息
+                PushManager.getInstance()?.handleMessage(messageData)
+                
+                Log.i(TAG, "OPPO推送消息处理完成: ${message.messageID}")
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "处理OPPO推送消息失败", e)
+            }
+        }
+    }
+    
+    override fun processMessage(context: Context?, dataMessage: DataMessage?, pushType: Int) {
+        super.processMessage(context, dataMessage, pushType)
+        
+        Log.d(TAG, "收到OPPO推送消息(带类型): dataMessage=$dataMessage, pushType=$pushType")
+        
+        // 处理不同类型的推送消息
+        when (pushType) {
+            1 -> { // 通知栏消息
+                Log.d(TAG, "收到OPPO通知栏消息")
+                processMessage(context, dataMessage)
+            }
+            2 -> { // 透传消息
+                Log.d(TAG, "收到OPPO透传消息")
+                processMessage(context, dataMessage)
+            }
+            else -> {
+                Log.d(TAG, "收到OPPO未知类型消息: pushType=$pushType")
+                processMessage(context, dataMessage)
+            }
+        }
+    }
+}

@@ -1,0 +1,37 @@
+name: wxtpush_client
+description: 多厂商原生推送客户端SDK - 支持华为HMS、小米、OPPO、VIVO、荣耀、苹果APNs。v1.1.0+ 大幅简化Android配置，配置量减少90%+！
+version: 1.1.1
+
+environment:
+  sdk: ^3.0.0
+  flutter: ">=3.0.0"
+
+dependencies:
+  device_info_plus: ^11.1.0
+  flutter:
+    sdk: flutter
+  
+  # JSON处理
+  json_annotation: ^4.8.1
+  
+
+  permission_handler: ^12.0.1
+  
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  json_serializable: ^6.7.1
+  build_runner: ^2.4.7
+  test: ^1.24.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.wxtpush.client
+        pluginClass: WxtpushClientPlugin
+      ios:
+        pluginClass: WxtpushClientPlugin

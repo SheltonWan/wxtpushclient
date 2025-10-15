@@ -1,0 +1,96 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+
+    // （必须）AGConnect插件 - 荣耀/华为推送必需
+    id "com.huawei.agconnect"
+}
+
+
+repositories {
+    google()
+    mavenCentral()
+
+    // （必须）显式为 app 模块声明仓库，加入插件内置 vendor-repo
+    maven { url uri("${rootDir}/../../android/vendor-repo") }
+}
+
+// 引入 Flutter SDK 的版本配置（默认配置）
+android {
+    namespace = "com.ephnic.withyou"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    // 不再需要 flatDir/libs，本应用完全不再包含 *.aar
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId = "com.ephnic.withyou"
+        minSdk = 21
+        targetSdk = 33 // 如需再升到 33+，需同步检查三方 SDK 的 exported/permissions
+        versionCode = 1
+        versionName = "1.0.0"
+
+        // 用户配置，多渠道打包时可用到
+        manifestPlaceholders = [
+            HONOR_APP_ID:  '104440752',
+            HUAWEI_APP_ID: '110807363',
+
+            OPPO_APP_KEY:   '85f05c636062439bb5b5a997312f61de',
+            OPPO_APP_SECRET:'649aff727c6340a7b47c1588cbcd9c7a',
+
+            XIAOMI_APP_ID:  '2882303761520311159',
+            XIAOMI_APP_KEY: '5932031115159',
+
+            VIVO_APP_ID:    '105741703',
+            VIVO_APP_KEY:   '3cbc1eb5650e1f79f8ec0bbb85b33bbb',
+        ]
+    }
+
+    signingConfigs {
+        release {
+            keyAlias 'withyouandroid'
+            keyPassword 'SZ828312'
+            storeFile file('../withyou.keystore')
+            storePassword 'SZ828312'
+        }
+        debug {
+            keyAlias 'withyouandroid'
+            keyPassword 'SZ828312'
+            storeFile file('../withyou.keystore')
+            storePassword 'SZ828312'
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // minifyEnabled false // 启用代码混淆
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+// 统一由插件提供所有推送 SDK，example 不再包含 *.aar 或 flatDir
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10"
+
+    // 基础 Android 依赖（按需）
+    implementation 'androidx.core:core:1.9.0'
+    implementation 'androidx.annotation:annotation:1.5.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
+}

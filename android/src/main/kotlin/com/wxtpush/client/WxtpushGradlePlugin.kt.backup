@@ -1,0 +1,88 @@
+package com.wxtpush.client
+
+import com.android.build.gradle.AppExtension
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+
+/**
+ * WXTPush 自动配置插件
+ * 自动为客户端应用添加必要的推送依赖和配置
+ */
+class WxtpushGradlePlugin : Plugin<Project> {
+
+    override fun apply(project: Project) {
+        // 确保这是Android应用项目
+        if (!project.plugins.hasPlugin("com.android.application")) {
+            throw IllegalStateException("WXTPush插件只能应用于Android应用项目")
+        }
+
+        val android = project.extensions.getByType(AppExtension::class.java)
+        
+        // 自动添加推送相关的权限和配置
+        configureAndroidManifest(project, android)
+        
+        // 自动添加必要的依赖
+        configureDependencies(project)
+        
+        // 配置构建选项
+        configureBuildOptions(project, android)
+        
+        project.logger.info("WXTPush插件配置完成")
+    }
+
+    private fun configureAndroidManifest(project: Project, android: AppExtension) {
+        // 自动添加 manifestPlaceholders 的默认值（如果用户没有设置）
+        android.defaultConfig.apply {
+            if (!manifestPlaceholders.containsKey("HUAWEI_APP_ID")) {
+                manifestPlaceholders["HUAWEI_APP_ID"] = ""
+            }
+            if (!manifestPlaceholders.containsKey("HONOR_APP_ID")) {
+                manifestPlaceholders["HONOR_APP_ID"] = ""
+            }
+            if (!manifestPlaceholders.containsKey("XIAOMI_APP_ID")) {
+                manifestPlaceholders["XIAOMI_APP_ID"] = ""
+            }
+            if (!manifestPlaceholders.containsKey("XIAOMI_APP_KEY")) {
+                manifestPlaceholders["XIAOMI_APP_KEY"] = ""
+            }
+            if (!manifestPlaceholders.containsKey("OPPO_APP_KEY")) {
+                manifestPlaceholders["OPPO_APP_KEY"] = ""
+            }
+            if (!manifestPlaceholders.containsKey("OPPO_APP_SECRET")) {
+                manifestPlaceholders["OPPO_APP_SECRET"] = ""
+            }
+            if (!manifestPlaceholders.containsKey("VIVO_APP_ID")) {
+                manifestPlaceholders["VIVO_APP_ID"] = ""
+            }
+            if (!manifestPlaceholders.containsKey("VIVO_APP_KEY")) {
+                manifestPlaceholders["VIVO_APP_KEY"] = ""
+            }
+        }
+    }
+
+    private fun configureDependencies(project: Project) {
+        // 自动添加必要的仓库
+        project.repositories.apply {
+            google()
+            mavenCentral()
+            maven { it.setUrl("https://developer.huawei.com/repo/") }
+            maven { it.setUrl("https://developer.hihonor.com/repo/") }
+            maven { it.setUrl("https://maven.heytapmobi.com/repository/maven-public/") }
+        }
+    }
+
+    private fun configureBuildOptions(project: Project, android: AppExtension) {
+        // 确保最小SDK版本满足要求
+        android.defaultConfig.apply {
+            if (minSdkVersion?.apiLevel ?: 0 < 21) {
+                project.logger.warn("WXTPush建议最小SDK版本为21，当前为${minSdkVersion?.apiLevel}")
+            }
+        }
+        
+        // 配置编译选项
+        android.compileOptions.apply {
+            sourceCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
+            targetCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
+        }
+    }
+}

@@ -1,0 +1,70 @@
+package com.wxtpush.client.push.vendors
+
+import android.content.Context
+import android.util.Log
+import com.vivo.push.model.UPSNotificationMessage
+import com.vivo.push.sdk.OpenClientPushMessageReceiver
+import com.wxtpush.client.push.PushManager
+
+/**
+ * VIVO推送消息接收服务
+ */
+class VivoMessageService : OpenClientPushMessageReceiver() {
+    
+    private val TAG = "VivoMessageService"
+    
+    override fun onNotificationMessageClicked(context: Context?, msg: UPSNotificationMessage?) {
+        super.onNotificationMessageClicked(context, msg)
+        
+        Log.d(TAG, "VIVO推送通知被点击: $msg")
+        
+        msg?.let { message ->
+            try {
+                val messageData = mutableMapOf<String, Any>()
+                
+                // 消息基本信息
+                messageData["messageId"] = message.msgId ?: ""
+                messageData["title"] = message.title ?: ""
+                messageData["content"] = message.content ?: ""
+                messageData["vendor"] = "vivo"
+                messageData["action"] = "click"
+                
+                // 自定义数据
+                val customData = mutableMapOf<String, String>()
+                message.params?.let { params ->
+                    for ((key, value) in params) {
+                        customData[key] = value
+                    }
+                }
+                
+                if (customData.isNotEmpty()) {
+                    messageData["customData"] = customData
+                }
+                
+                // 通知PushManager处理消息点击
+                PushManager.getInstance()?.handleMessage(messageData)
+                
+                Log.i(TAG, "VIVO推送通知点击处理完成: ${message.msgId}")
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "处理VIVO推送通知点击失败", e)
+            }
+        }
+    }
+    
+    override fun onReceiveRegId(context: Context?, regId: String?) {
+        super.onReceiveRegId(context, regId)
+        
+        Log.d(TAG, "收到VIVO推送RegId: $regId")
+        
+        if (!regId.isNullOrEmpty()) {
+            try {
+                // 通知PushManager更新token
+                PushManager.getInstance()?.handleTokenReceived("vivo", regId)
+                Log.i(TAG, "VIVO推送RegId处理完成: $regId")
+            } catch (e: Exception) {
+                Log.e(TAG, "处理VIVO推送RegId失败", e)
+            }
+        }
+    }
+}
