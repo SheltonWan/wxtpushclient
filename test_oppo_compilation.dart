@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:wxtpush_client/wxtpush_client.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -24,9 +26,9 @@ class _MyAppState extends State<MyApp> {
   Future<void> _initPush() async {
     try {
       _client = WxtpushClient.instance;
-      
+
       // 配置OPPO推送
-      final config = PushConfig(
+      const config = PushConfig(
         oppo: OppoConfig(
           appId: 'test_app_id',
           appKey: 'test_app_key',
@@ -83,12 +85,12 @@ class _MyAppState extends State<MyApp> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('状态: $_status'),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text('Token: $_token'),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _initPush,
-                child: Text('重新初始化'),
+                child: const Text('重新初始化'),
               ),
             ],
           ),

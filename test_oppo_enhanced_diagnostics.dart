@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wxtpush_client/wxtpush_client.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 /// 自定义推送消息处理器，用于诊断
@@ -46,6 +46,8 @@ class DiagnosticPushMessageHandler implements PushMessageHandler {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -69,9 +71,9 @@ class _MyAppState extends State<MyApp> {
       });
 
       _client = WxtpushClient.instance;
-      
+
       // 配置OPPO推送，包含诊断参数
-      final config = PushConfig(
+      const config = PushConfig(
         oppo: OppoConfig(
           appId: '31692033', // 测试用的appId
           appKey: '85f05c636062439bb5b5a997312f61de',
@@ -95,7 +97,7 @@ class _MyAppState extends State<MyApp> {
             _status = '❌ Token获取失败';
             _diagnostics += '\n[${DateTime.now().toString().substring(11, 19)}] ❌ 错误: $error\n';
           });
-          
+
           // 分析错误并提供建议
           _analyzeError(error);
         },
@@ -113,7 +115,7 @@ class _MyAppState extends State<MyApp> {
 
       // 初始化推送服务
       await _client!.initialize(config, messageHandler: messageHandler);
-      
+
       setState(() {
         _status = '初始化完成，开始诊断...';
         _diagnostics += '[${DateTime.now().toString().substring(11, 19)}] 🔧 OPPO推送增强诊断启动\n';
@@ -136,7 +138,7 @@ class _MyAppState extends State<MyApp> {
           });
         }
       }
-      
+
     } catch (e) {
       setState(() {
         _status = '初始化失败: $e';
@@ -148,35 +150,35 @@ class _MyAppState extends State<MyApp> {
   void _analyzeError(String error) {
     setState(() {
       _diagnostics += '\n📋 错误分析:\n';
-      
+
       if (error.contains('超时')) {
         _diagnostics += '  • 可能原因：SDK未正确初始化或设备不支持\n';
         _diagnostics += '  • 建议：检查设备是否为OPPO/OnePlus/realme品牌\n';
         _diagnostics += '  • 建议：确认Heytap推送服务已安装且运行\n';
       }
-      
+
       if (error.contains('应用信息错误') || error.contains('code=-3')) {
         _diagnostics += '  • 可能原因：AppKey或AppSecret不正确\n';
         _diagnostics += '  • 建议：检查OPPO开放平台配置\n';
       }
-      
+
       if (error.contains('应用签名错误') || error.contains('code=-8')) {
         _diagnostics += '  • 可能原因：应用签名与后台配置不符\n';
         _diagnostics += '  • 建议：检查SHA1签名是否与开放平台一致\n';
       }
-      
+
       if (error.contains('白名单') || error.contains('code=-100')) {
         _diagnostics += '  • 可能原因：应用未在白名单或权限问题\n';
         _diagnostics += '  • 建议：申请"通知栏推送"正式权限\n';
         _diagnostics += '  • 参考：doc/OPPO_PUSH_PERMISSION_GUIDE.md\n';
       }
-      
+
       if (error.contains('设备不支持') || error.contains('code=-11')) {
         _diagnostics += '  • 可能原因：设备不支持推送或服务未启用\n';
         _diagnostics += '  • 建议：检查设备推送服务状态\n';
         _diagnostics += '  • 建议：确认ROM版本支持Heytap推送\n';
       }
-      
+
       _diagnostics += '\n';
     });
   }
