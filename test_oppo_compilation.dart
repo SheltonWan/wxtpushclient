@@ -117,18 +117,18 @@ class CustomPushMessageHandler extends DefaultPushMessageHandler {
 
   @override
   Future<void> onMessageReceived(PushMessage message) async {
-    print('收到推送消息: ${message.title} - ${message.body}');
+    debugPrint('收到推送消息: ${message.title} - ${message.body}');
   }
 
   @override
   Future<void> onTokenUpdated(String token, String vendor) async {
-    print('收到Token: $vendor - $token');
+    debugPrint('收到Token: $vendor - $token');
     onTokenReceived?.call(token, vendor);
   }
 
   @override
   Future<void> onError(String error, String? vendor) async {
-    print('推送错误: $error');
+    debugPrint('推送错误: $error');
     onTokenError?.call(error, vendor);
   }
 }

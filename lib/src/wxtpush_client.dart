@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -13,45 +14,45 @@ import 'utils/device_utils.dart';
 class WxtpushClient {
   static const MethodChannel _channel = MethodChannel('wxtpush_client');
   static const EventChannel _eventChannel = EventChannel('wxtpush_client/events');
-  
+
   static WxtpushClient? _instance;
   static WxtpushClient get instance {
     _instance ??= WxtpushClient._();
     return _instance!;
   }
-  
+
   WxtpushClient._();
-  
+
   PushConfig? _config;
   PushMessageHandler? _messageHandler;
   StreamSubscription? _eventSubscription;
-  
+
   /// 初始化推送服务
   Future<void> initialize(PushConfig config, {PushMessageHandler? messageHandler}) async {
     _config = config;
     _messageHandler = messageHandler ?? DefaultPushMessageHandler();
-    
+
     // 输出设备信息
     final deviceInfo = await DeviceUtils.getDeviceInfo();
-    print('📱 设备信息: $deviceInfo');
-    
+    debugPrint('📱 设备信息: $deviceInfo');
+
     // 先取消之前的订阅（如果存在）
     await _eventSubscription?.cancel();
     _eventSubscription = null;
-    
+
     // 重新监听推送事件
     _listenToPushEvents();
-    
+
     // 请求通知权限
     await _requestNotificationPermission();
-    
+
     // 延迟一下确保事件监听器已设置
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     // 初始化原生推送服务
     await _initializeNativePush();
   }
-  
+
   /// 主动请求通知权限
   ///
   /// 返回权限是否被授予，同时会触发[PushMessageHandler.onPermissionChanged]回调
@@ -91,37 +92,37 @@ class WxtpushClient {
   Future<void> _initializeNativePush() async {
     try {
       final supportedVendors = await DeviceUtils.getSupportedVendors();
-      
-      print('🔍 设备支持的推送厂商: ${supportedVendors.map((v) => v.displayName).join(", ")}');
-      
+
+      debugPrint('🔍 设备支持的推送厂商: ${supportedVendors.map((v) => v.displayName).join(", ")}');
+
       if (supportedVendors.isEmpty) {
-        print('⚠️ 未检测到匹配的设备厂商，推送服务将无法初始化');
+        debugPrint('⚠️ 未检测到匹配的设备厂商，推送服务将无法初始化');
         _messageHandler?.onError('未检测到支持的推送厂商', null);
         return;
       }
-      
+
       for (final vendor in supportedVendors) {
         final vendorConfig = _config!.getVendorConfig(vendor);
         if (vendorConfig != null) {
-          print('🚀 初始化 ${vendor.displayName} 推送服务...');
+          debugPrint('🚀 初始化 ${vendor.displayName} 推送服务...');
           try {
             await _channel.invokeMethod('initializePush', {
               'vendor': vendor.id,
               'config': _configToMap(vendor, vendorConfig),
             });
-            print('✅ ${vendor.displayName} 推送服务初始化完成');
+            debugPrint('✅ ${vendor.displayName} 推送服务初始化完成');
           } catch (e) {
-            print('❌ ${vendor.displayName} 推送服务初始化失败: $e');
+            debugPrint('❌ ${vendor.displayName} 推送服务初始化失败: $e');
           }
         } else {
-          print('⏭️ ${vendor.displayName} 未配置，跳过初始化');
+          debugPrint('⏭️ ${vendor.displayName} 未配置，跳过初始化');
         }
       }
     } on PlatformException catch (e) {
       _messageHandler?.onError('初始化推送服务失败: ${e.message}', null);
     }
   }
-  
+
   /// 配置转换为Map
   Map<String, dynamic> _configToMap(PushVendor vendor, dynamic config) {
     switch (vendor) {
@@ -173,24 +174,24 @@ class WxtpushClient {
         };
     }
   }
-  
+
   /// 监听推送事件
   void _listenToPushEvents() {
     _eventSubscription = _eventChannel.receiveBroadcastStream().listen(
       (event) {
-        print('📡 收到推送事件: $event');
+        debugPrint('📡 收到推送事件: $event');
         if (event is Map) {
           final eventMap = Map<String, dynamic>.from(event);
           _handlePushEvent(eventMap);
         }
       },
       onError: (error) {
-        print('❌ 推送事件监听错误: $error');
+        debugPrint('❌ 推送事件监听错误: $error');
         _messageHandler?.onError('推送事件监听错误: $error', null);
       },
     );
   }
-  
+
   /// 处理推送事件
   void _handlePushEvent(Map<String, dynamic> event) {
     try {
@@ -198,14 +199,14 @@ class WxtpushClient {
       // 我们需要将 event 字段映射为 type 字段
       final eventType = event['event'] as String? ?? event['type'] as String?;
       final eventData = event['data'];
-      
-      print('🔄 处理推送事件: $eventType, 数据: $eventData, 数据类型: ${eventData?.runtimeType}');
-      
+
+      debugPrint('🔄 处理推送事件: $eventType, 数据: $eventData, 数据类型: ${eventData?.runtimeType}');
+
       if (eventType == null) {
-        print('⚠️ 事件类型为空，忽略事件: $event');
+        debugPrint('⚠️ 事件类型为空，忽略事件: $event');
         return;
       }
-      
+
       // 安全的类型转换 - 使用与getTokens相同的转换逻辑
       Map<String, dynamic>? safeEventData;
       if (eventData != null) {
@@ -247,13 +248,13 @@ class WxtpushClient {
 
             safeEventData = stringMap;
           } else {
-            print('⚠️ 无法转换事件数据类型: ${eventData.runtimeType}, 原始数据: $eventData');
+            debugPrint('⚠️ 无法转换事件数据类型: ${eventData.runtimeType}, 原始数据: $eventData');
           }
         } catch (e) {
-          print('❌ 事件数据类型转换失败: $e, 原始数据: $eventData');
+          debugPrint('❌ 事件数据类型转换失败: $e, 原始数据: $eventData');
         }
       }
-    
+
       switch (eventType) {
         case 'messageReceived':
           if (safeEventData != null) {
@@ -261,7 +262,7 @@ class WxtpushClient {
               final message = PushMessage.fromJson(safeEventData);
               _messageHandler?.onMessageReceived(message);
             } catch (e) {
-              print('❌ 解析消息接收事件失败: $e, 数据: $safeEventData');
+              debugPrint('❌ 解析消息接收事件失败: $e, 数据: $safeEventData');
               _messageHandler?.onError('解析消息接收事件失败: $e', null);
             }
           }
@@ -272,7 +273,7 @@ class WxtpushClient {
               final message = PushMessage.fromJson(safeEventData);
               _messageHandler?.onMessageClicked(message);
             } catch (e) {
-              print('❌ 解析消息点击事件失败: $e, 数据: $safeEventData');
+              debugPrint('❌ 解析消息点击事件失败: $e, 数据: $safeEventData');
               _messageHandler?.onError('解析消息点击事件失败: $e', null);
             }
           }
@@ -285,13 +286,13 @@ class WxtpushClient {
               final vendor = safeEventData['vendor']?.toString();
 
               if (token != null && vendor != null) {
-                print('📱 Token事件: $vendor - ${token.substring(0, 20)}...');
+                debugPrint('📱 Token事件: $vendor - ${token.substring(0, 20)}...');
                 _messageHandler?.onTokenUpdated(token, vendor);
               } else {
-                print('⚠️ Token事件缺少必要字段: token=$token, vendor=$vendor');
+                debugPrint('⚠️ Token事件缺少必要字段: token=$token, vendor=$vendor');
               }
             } catch (e) {
-              print('❌ 处理Token事件失败: $e, 数据: $safeEventData');
+              debugPrint('❌ 处理Token事件失败: $e, 数据: $safeEventData');
               _messageHandler?.onError('处理Token事件失败: $e', null);
             }
           }
@@ -303,7 +304,7 @@ class WxtpushClient {
               final vendor = safeEventData['vendor']?.toString();
               _messageHandler?.onPermissionChanged(granted, vendor);
             } catch (e) {
-              print('❌ 处理权限授予事件失败: $e, 数据: $safeEventData');
+              debugPrint('❌ 处理权限授予事件失败: $e, 数据: $safeEventData');
               _messageHandler?.onError('处理权限授予事件失败: $e', null);
             }
           }
@@ -316,7 +317,7 @@ class WxtpushClient {
               final vendor = safeEventData['vendor']?.toString();
               _messageHandler?.onPermissionChanged(granted, vendor);
             } catch (e) {
-              print('❌ 处理权限拒绝事件失败: $e, 数据: $safeEventData');
+              debugPrint('❌ 处理权限拒绝事件失败: $e, 数据: $safeEventData');
               _messageHandler?.onError('处理权限拒绝事件失败: $e', null);
             }
           }
@@ -328,7 +329,7 @@ class WxtpushClient {
               final vendor = safeEventData['vendor']?.toString();
               _messageHandler?.onError('Token获取失败: $error', vendor);
             } catch (e) {
-              print('❌ 处理Token错误事件失败: $e, 数据: $safeEventData');
+              debugPrint('❌ 处理Token错误事件失败: $e, 数据: $safeEventData');
               _messageHandler?.onError('处理Token错误事件失败: $e', null);
             }
           }
@@ -340,18 +341,18 @@ class WxtpushClient {
               final vendor = safeEventData['vendor']?.toString();
               _messageHandler?.onError(error, vendor);
             } catch (e) {
-              print('❌ 处理错误事件失败: $e, 数据: $safeEventData');
+              debugPrint('❌ 处理错误事件失败: $e, 数据: $safeEventData');
               _messageHandler?.onError('处理错误事件失败: $e', null);
             }
           }
           break;
       }
     } catch (e) {
-      print('❌ 处理推送事件失败: $e');
+      debugPrint('❌ 处理推送事件失败: $e');
       _messageHandler?.onError('处理推送事件失败: $e', null);
     }
   }
-  
+
   /// 安全地将值转换为bool类型
   bool? _safeCastToBool(dynamic value) {
     if (value == null) return null;
@@ -369,7 +370,7 @@ class WxtpushClient {
     }
     return null;
   }
-  
+
   /// 获取所有可用的推送Token
   Future<List<PushToken>> getTokens() async {
     try {
@@ -383,14 +384,14 @@ class WxtpushClient {
                 final stringMap = Map<String, dynamic>.from(tokenData);
                 return PushToken.fromJson(stringMap);
               } catch (e) {
-                print('⚠️ Token数据解析失败: $e, 原始数据: $tokenData');
+                debugPrint('⚠️ Token数据解析失败: $e, 原始数据: $tokenData');
                 return null;
               }
             })
             .whereType<PushToken>()
             .toList();
       } else {
-        print('⚠️ getAllTokens返回类型错误: ${result.runtimeType}');
+        debugPrint('⚠️ getAllTokens返回类型错误: ${result.runtimeType}');
         return [];
       }
     } on PlatformException catch (e) {
@@ -404,14 +405,14 @@ class WxtpushClient {
       final result = await _channel.invokeMethod('getToken', {
         'vendor': vendor.id,
       });
-      
+
       if (result != null && result is Map) {
         try {
           // Android端已经返回正确的数据结构，直接转换
           final stringMap = Map<String, dynamic>.from(result);
           return PushToken.fromJson(stringMap);
         } catch (e) {
-          print('⚠️ Token数据解析失败: $e, 原始数据: $result');
+          debugPrint('⚠️ Token数据解析失败: $e, 原始数据: $result');
           return null;
         }
       }
@@ -421,7 +422,7 @@ class WxtpushClient {
       return null;
     }
   }
-  
+
   /// 订阅主题
   Future<bool> subscribeToTopic(String topic, {PushVendor? vendor}) async {
     try {
@@ -435,7 +436,7 @@ class WxtpushClient {
       return false;
     }
   }
-  
+
   /// 取消订阅主题
   Future<bool> unsubscribeFromTopic(String topic, {PushVendor? vendor}) async {
     try {
@@ -449,7 +450,7 @@ class WxtpushClient {
       return false;
     }
   }
-  
+
   /// 设置别名（用户标识）
   Future<bool> setAlias(String alias, {PushVendor? vendor}) async {
     try {
@@ -463,7 +464,7 @@ class WxtpushClient {
       return false;
     }
   }
-  
+
   /// 设置标签
   Future<bool> setTags(List<String> tags, {PushVendor? vendor}) async {
     try {
@@ -477,7 +478,7 @@ class WxtpushClient {
       return false;
     }
   }
-  
+
   /// 启用推送服务
   Future<bool> enablePush({PushVendor? vendor}) async {
     try {
@@ -490,7 +491,7 @@ class WxtpushClient {
       return false;
     }
   }
-  
+
   /// 禁用推送服务
   Future<bool> disablePush({PushVendor? vendor}) async {
     try {
@@ -503,7 +504,7 @@ class WxtpushClient {
       return false;
     }
   }
-  
+
   /// 获取推送服务状态
   Future<bool> isPushEnabled({PushVendor? vendor}) async {
     try {
@@ -516,14 +517,14 @@ class WxtpushClient {
       return false;
     }
   }
-  
+
   /// 刷新指定厂商的推送Token
   Future<bool> refreshToken(PushVendor vendor) async {
     try {
       await _channel.invokeMethod('refreshToken', {
         'vendor': vendor.id,
       });
-      print('🔄 刷新${vendor.displayName}推送Token成功');
+      debugPrint('🔄 刷新${vendor.displayName}推送Token成功');
       return true;
     } on PlatformException catch (e) {
       _messageHandler?.onError(
@@ -538,7 +539,7 @@ class WxtpushClient {
       await _channel.invokeMethod('deleteToken', {
         'vendor': vendor.id,
       });
-      print('🗑️ 删除${vendor.displayName}推送Token成功');
+      debugPrint('🗑️ 删除${vendor.displayName}推送Token成功');
       return true;
     } on PlatformException catch (e) {
       _messageHandler?.onError(
@@ -551,7 +552,7 @@ class WxtpushClient {
   Future<void> dispose() async {
     await _eventSubscription?.cancel();
     _eventSubscription = null;
-    
+
     try {
       await _channel.invokeMethod('dispose');
     } on PlatformException catch (e) {

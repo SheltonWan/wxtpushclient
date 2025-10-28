@@ -1,32 +1,34 @@
+import 'package:flutter/foundation.dart';
+
 /// 接收到的推送消息
 class PushMessage {
   /// 消息标题
   final String? title;
-  
+
   /// 消息内容
   final String? body;
-  
+
   /// 自定义数据
   final Map<String, dynamic>? data;
-  
+
   /// 消息ID
   final String? messageId;
-  
+
   /// 点击动作
   final String? clickAction;
-  
+
   /// 图标
   final String? icon;
-  
+
   /// 声音
   final String? sound;
-  
+
   /// 角标
   final int? badge;
-  
+
   /// 接收时间
   final DateTime receivedAt;
-  
+
   /// 是否为点击消息
   final bool isClicked;
 
@@ -74,7 +76,7 @@ class PushMessage {
       try {
         return Map<String, dynamic>.from(value);
       } catch (e) {
-        print('⚠️ 无法转换Map类型: $e, 原始数据: $value');
+        debugPrint('⚠️ 无法转换Map类型: $e, 原始数据: $value');
         return null;
       }
     }
@@ -93,7 +95,7 @@ class PushMessage {
         try {
           return double.parse(value).round();
         } catch (e) {
-          print('⚠️ 无法解析整数: $value');
+          debugPrint('⚠️ 无法解析整数: $value');
           return null;
         }
       }
@@ -118,27 +120,27 @@ class PushMessage {
   /// 安全地解析DateTime
   static DateTime? _safeDateTimeParse(dynamic value) {
     if (value == null) return null;
-    
+
     try {
       // 如果是字符串，尝试解析
       if (value is String) {
         if (value.isEmpty) return null;
         return DateTime.parse(value);
       }
-      
+
       // 如果是时间戳（毫秒）
       if (value is int) {
         return DateTime.fromMillisecondsSinceEpoch(value);
       }
-      
+
       // 如果是时间戳（秒，转换为毫秒）
       if (value is double) {
         return DateTime.fromMillisecondsSinceEpoch((value * 1000).round());
       }
-      
+
       return null;
     } catch (e) {
-      print('⚠️ 无法解析时间: $value, 错误: $e');
+      debugPrint('⚠️ 无法解析时间: $value, 错误: $e');
       return null;
     }
   }

@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'push_vendor.dart';
 import 'dart:io' show Platform;
 import 'package:flutter/services.dart';
@@ -23,7 +25,7 @@ class PushConfig {
   });
 
   /// 从Android Manifest自动读取配置（简化集成）
-  /// 
+  ///
   /// Android端会自动从 manifestPlaceholders 中读取配置
   /// iOS端需要手动传入配置参数
   static Future<PushConfig> fromManifest({
@@ -43,10 +45,10 @@ class PushConfig {
       try {
         const channel = MethodChannel('wxtpush_client');
         final manifestConfig = await channel.invokeMethod<Map>('getManifestConfig');
-        
+
         if (manifestConfig != null) {
           final config = Map<String, dynamic>.from(manifestConfig);
-          print('从Manifest读取到配置: $config');
+          debugPrint('从Manifest读取到配置: $config');
           return PushConfig(
             huawei: huaweiOverride ?? _createHuaweiConfig(config),
             xiaomi: xiaomiOverride ?? _createXiaomiConfig(config),
@@ -59,10 +61,10 @@ class PushConfig {
         }
       } catch (e) {
         if (debugMode) {
-          print('从Manifest读取配置失败，使用手动覆盖配置: $e');
+          debugPrint('从Manifest读取配置失败，使用手动覆盖配置: $e');
         }
       }
-      
+
       // 如果读取失败，使用手动覆盖配置
       return PushConfig(
         huawei: huaweiOverride,
@@ -86,10 +88,10 @@ class PushConfig {
   static HuaweiConfig? _createHuaweiConfig(Map<String, dynamic> config) {
     final appId = config['huawei_app_id'] as String?;
     final appSecret = config['huawei_app_secret'] as String?;
-    
+
     if (appId != null && appId.isNotEmpty) {
       return HuaweiConfig(
-        appId: appId, 
+        appId: appId,
         appSecret: appSecret ?? '', // appSecret可选
       );
     }
@@ -100,11 +102,11 @@ class PushConfig {
     final appId = config['xiaomi_app_id'] as String?;
     final appKey = config['xiaomi_app_key'] as String?;
     final appSecret = config['xiaomi_app_secret'] as String?;
-    
+
     if (appId != null && appId.isNotEmpty && appKey != null && appKey.isNotEmpty) {
       return XiaomiConfig(
-        appId: appId, 
-        appKey: appKey, 
+        appId: appId,
+        appKey: appKey,
         appSecret: appSecret ?? '', // 小米可能不需要secret
       );
     }
@@ -114,7 +116,7 @@ class PushConfig {
   static OppoConfig? _createOppoConfig(Map<String, dynamic> config) {
     final appKey = config['oppo_app_key'] as String?;
     final appSecret = config['oppo_app_secret'] as String?;
-    
+
     if (appKey != null && appKey.isNotEmpty && appSecret != null && appSecret.isNotEmpty) {
       return OppoConfig(
         appId: appKey, // OPPO使用AppKey作为AppId
@@ -128,7 +130,7 @@ class PushConfig {
   static VivoConfig? _createVivoConfig(Map<String, dynamic> config) {
     final appId = config['vivo_app_id'] as String?;
     final appKey = config['vivo_app_key'] as String?;
-    
+
     if (appId != null && appId.isNotEmpty && appKey != null && appKey.isNotEmpty) {
       return VivoConfig(
         appId: appId,
@@ -142,10 +144,10 @@ class PushConfig {
   static HonorConfig? _createHonorConfig(Map<String, dynamic> config) {
     final appId = config['honor_app_id'] as String?;
     final appSecret = config['honor_app_secret'] as String?;
-    
+
     if (appId != null && appId.isNotEmpty) {
       return HonorConfig(
-        appId: appId, 
+        appId: appId,
         appSecret: appSecret ?? '', // appSecret可选
       );
     }
