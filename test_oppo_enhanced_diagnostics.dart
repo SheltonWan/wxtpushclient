@@ -49,10 +49,10 @@ class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   String _token = '未获取';
   String _status = '准备中...';
   String _diagnostics = '';
@@ -89,7 +89,8 @@ class _MyAppState extends State<MyApp> {
           setState(() {
             _token = token;
             _status = '✅ Token获取成功！';
-            _diagnostics += '\n[${DateTime.now().toString().substring(11, 19)}] ✅ Token: ${token.substring(0, 12)}...\n';
+            _diagnostics +=
+                '\n[${DateTime.now().toString().substring(11, 19)}] ✅ Token: ${token.substring(0, 12)}...\n';
           });
         },
         onTokenErrorCallback: (error, vendor) {
@@ -134,11 +135,11 @@ class _MyAppState extends State<MyApp> {
           setState(() {
             _token = oppoToken.token;
             _status = '✅ Token已存在';
-            _diagnostics += '\n[${DateTime.now().toString().substring(11, 19)}] 📋 现有Token: ${oppoToken.token.substring(0, 12)}...\n';
+            _diagnostics +=
+                '\n[${DateTime.now().toString().substring(11, 19)}] 📋 现有Token: ${oppoToken.token.substring(0, 12)}...\n';
           });
         }
       }
-
     } catch (e) {
       setState(() {
         _status = '初始化失败: $e';
