@@ -33,8 +33,8 @@ class WxtpushClient {
     _messageHandler = messageHandler ?? DefaultPushMessageHandler();
 
     // 输出设备信息
-    final deviceInfo = await DeviceUtils.getDeviceInfo();
-    debugPrint('📱 设备信息: $deviceInfo');
+    // final deviceInfo = await DeviceUtils.getDeviceInfo();
+ 
 
     // 先取消之前的订阅（如果存在）
     await _eventSubscription?.cancel();
