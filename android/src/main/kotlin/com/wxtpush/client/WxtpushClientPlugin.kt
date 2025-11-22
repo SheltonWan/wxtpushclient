@@ -133,6 +133,27 @@ class WxtpushClientPlugin: FlutterPlugin, MethodCallHandler, EventChannel.Stream
                     result.error("DELETE_ERROR", "Failed to delete token: ${e.message}", null)
                 }
             }
+            "setBadge" -> {
+                try {
+                    val count = call.argument<Int>("count") ?: throw IllegalArgumentException("count is required")
+                    val vendor = call.argument<String>("vendor")
+                    val pushVendor = vendor?.let { PushVendor.fromString(it) }
+                    val success = pushManager.setBadge(count, pushVendor)
+                    result.success(success)
+                } catch (e: Exception) {
+                    result.error("BADGE_ERROR", "Failed to set badge: ${e.message}", null)
+                }
+            }
+            "getBadge" -> {
+                try {
+                    val vendor = call.argument<String>("vendor")
+                    val pushVendor = vendor?.let { PushVendor.fromString(it) }
+                    val badgeCount = pushManager.getBadge(pushVendor)
+                    result.success(badgeCount)
+                } catch (e: Exception) {
+                    result.error("BADGE_ERROR", "Failed to get badge: ${e.message}", null)
+                }
+            }
             else -> {
                 result.notImplemented()
             }

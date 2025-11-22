@@ -53,6 +53,10 @@ public class WxtpushClientPlugin: NSObject, FlutterPlugin {
             setAlias(call: call, result: result)
         case "setTags":
             setTags(call: call, result: result)
+        case "setBadge":
+            setBadge(call: call, result: result)
+        case "getBadge":
+            getBadge(result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -133,6 +137,30 @@ public class WxtpushClientPlugin: NSObject, FlutterPlugin {
     private func setTags(call: FlutterMethodCall, result: @escaping FlutterResult) {
         // APNs不直接支持标签，需要在服务端处理
         result(nil)
+    }
+    
+    private func setBadge(call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any],
+              let count = args["count"] as? Int else {
+            result(FlutterError(code: "INVALID_ARGS", message: "Invalid arguments for setBadge", details: nil))
+            return
+        }
+        
+        // iOS 设置角标数字
+        DispatchQueue.main.async {
+            UIApplication.shared.applicationIconBadgeNumber = count
+            print("📍 iOS 角标已设置为: \(count)")
+            result(true)
+        }
+    }
+    
+    private func getBadge(result: @escaping FlutterResult) {
+        // iOS 获取当前角标数字
+        DispatchQueue.main.async {
+            let badgeNumber = UIApplication.shared.applicationIconBadgeNumber
+            print("📍 iOS 当前角标: \(badgeNumber)")
+            result(badgeNumber)
+        }
     }
     
     private func setupPushNotifications() {

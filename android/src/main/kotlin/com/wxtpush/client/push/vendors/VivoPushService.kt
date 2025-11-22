@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.wxtpush.client.push.BasePushService
 import com.wxtpush.client.push.PushEventCallback
+import com.wxtpush.client.push.BadgeHelper
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -232,5 +233,15 @@ class VivoPushService(
         } else {
             Log.d(TAG, "模拟设置VIVO推送标签: $tags")
         }
+    }
+
+    override fun setBadge(count: Int): Boolean {
+        Log.d(TAG, "设置VIVO角标: $count")
+        return BadgeHelper.setBadge(context, count)
+    }
+
+    override fun getBadge(): Int {
+        Log.d(TAG, "获取VIVO角标")
+        return BadgeHelper.getBadge(context)
     }
 }

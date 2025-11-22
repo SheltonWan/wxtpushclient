@@ -548,6 +548,57 @@ class WxtpushClient {
     }
   }
 
+  /// 设置应用角标数字
+  /// 
+  /// [count] 要显示的角标数字，传入 0 等同于清除角标
+  /// [vendor] 可选，指定厂商。如果不指定，则设置所有已初始化的厂商
+  /// 
+  /// 返回操作是否成功
+  /// 
+  /// 注意：
+  /// - iOS 原生支持角标
+  /// - Android 各厂商支持情况不同：华为、小米、荣耀支持较好，OPPO/VIVO 部分机型支持
+  Future<bool> setBadge(int count, {PushVendor? vendor}) async {
+    try {
+      final result = await _channel.invokeMethod('setBadge', {
+        'count': count,
+        'vendor': vendor?.id,
+      });
+      return result as bool? ?? false;
+    } on PlatformException catch (e) {
+      _messageHandler?.onError('设置角标失败: ${e.message}', vendor?.id);
+      return false;
+    }
+  }
+
+  /// 清除应用角标
+  /// 
+  /// [vendor] 可选，指定厂商。如果不指定，则清除所有已初始化的厂商
+  /// 
+  /// 返回操作是否成功
+  Future<bool> clearBadge({PushVendor? vendor}) async {
+    return setBadge(0, vendor: vendor);
+  }
+
+  /// 获取当前应用角标数字
+  /// 
+  /// [vendor] 可选，指定厂商。如果不指定，返回第一个可用的角标数字
+  /// 
+  /// 返回当前角标数字，如果获取失败返回 0
+  /// 
+  /// 注意：Android 部分厂商可能不支持读取角标
+  Future<int> getBadge({PushVendor? vendor}) async {
+    try {
+      final result = await _channel.invokeMethod('getBadge', {
+        'vendor': vendor?.id,
+      });
+      return result as int? ?? 0;
+    } on PlatformException catch (e) {
+      _messageHandler?.onError('获取角标失败: ${e.message}', vendor?.id);
+      return 0;
+    }
+  }
+
   /// 销毁资源
   Future<void> dispose() async {
     await _eventSubscription?.cancel();

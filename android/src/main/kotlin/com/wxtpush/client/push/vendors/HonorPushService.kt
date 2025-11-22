@@ -6,6 +6,7 @@ import com.hihonor.push.sdk.HonorPushClient
 import com.hihonor.push.sdk.HonorPushCallback
 import com.wxtpush.client.push.BasePushService
 import com.wxtpush.client.push.PushEventCallback
+import com.wxtpush.client.push.BadgeHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -127,5 +128,15 @@ class HonorPushService(
 
     override fun setTags(tags: List<String>) {
         Log.w(TAG, "荣耀推送不支持设置标签")
+    }
+
+    override fun setBadge(count: Int): Boolean {
+        Log.d(TAG, "设置荣耀角标: $count")
+        return BadgeHelper.setBadge(context, count)
+    }
+
+    override fun getBadge(): Int {
+        Log.d(TAG, "获取荣耀角标")
+        return BadgeHelper.getBadge(context)
     }
 }

@@ -8,6 +8,7 @@ import com.huawei.hms.aaid.HmsInstanceId
 import com.huawei.hms.common.ApiException
 import com.wxtpush.client.push.BasePushService
 import com.wxtpush.client.push.PushEventCallback
+import com.wxtpush.client.push.BadgeHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -135,6 +136,16 @@ class HuaweiPushService(
 
     override fun setTags(tags: List<String>) {
         Log.w(TAG, "华为推送不直接支持设置标签，请通过服务端实现")
+    }
+
+    override fun setBadge(count: Int): Boolean {
+        Log.d(TAG, "设置华为角标: $count")
+        return BadgeHelper.setBadge(context, count)
+    }
+
+    override fun getBadge(): Int {
+        Log.d(TAG, "获取华为角标")
+        return BadgeHelper.getBadge(context)
     }
 
     private fun sendTokenSuccess(token: String) {

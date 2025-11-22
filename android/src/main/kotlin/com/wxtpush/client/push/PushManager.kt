@@ -100,6 +100,49 @@ class PushManager(
     }
 
     /**
+     * 设置应用角标数字
+     * 
+     * @param count 角标数字，0 表示清除角标
+     * @param vendor 可选，指定厂商。如果为 null，则设置所有已初始化的厂商
+     * @return 操作是否成功
+     */
+    fun setBadge(count: Int, vendor: PushVendor?): Boolean {
+        Log.d(TAG, "设置角标: count=$count, vendor=${vendor?.id ?: "all"}")
+        
+        return if (vendor != null) {
+            // 设置指定厂商
+            vendors[vendor]?.setBadge(count) ?: false
+        } else {
+            // 设置所有厂商
+            var success = false
+            vendors.values.forEach { service ->
+                if (service.setBadge(count)) {
+                    success = true
+                }
+            }
+            success
+        }
+    }
+
+    /**
+     * 获取当前应用角标数字
+     * 
+     * @param vendor 可选，指定厂商。如果为 null，则返回第一个可用的角标数字
+     * @return 当前角标数字，如果获取失败返回 0
+     */
+    fun getBadge(vendor: PushVendor?): Int {
+        Log.d(TAG, "获取角标: vendor=${vendor?.id ?: "any"}")
+        
+        return if (vendor != null) {
+            // 获取指定厂商
+            vendors[vendor]?.getBadge() ?: 0
+        } else {
+            // 返回第一个可用的角标数字
+            vendors.values.firstOrNull()?.getBadge() ?: 0
+        }
+    }
+
+    /**
      * 清理所有推送服务
      */
     fun cleanup() {

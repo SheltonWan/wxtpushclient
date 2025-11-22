@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.wxtpush.client.push.BasePushService
 import com.wxtpush.client.push.PushEventCallback
+import com.wxtpush.client.push.BadgeHelper
 
 /**
  * 小米推送服务实现
@@ -209,6 +210,16 @@ class XiaomiPushService(
         } catch (e: Exception) {
             Log.e(TAG, "设置小米推送标签失败", e)
         }
+    }
+
+    override fun setBadge(count: Int): Boolean {
+        Log.d(TAG, "设置小米角标: $count")
+        return BadgeHelper.setBadge(context, count)
+    }
+
+    override fun getBadge(): Int {
+        Log.d(TAG, "获取小米角标")
+        return BadgeHelper.getBadge(context)
     }
     
     /**

@@ -32,6 +32,7 @@ class _PushTestPageState extends State<PushTestPage> {
   final List<String> _messages = [];
   bool _isInitialized = false;
   List<PushToken> _tokens = [];
+  int _badgeCount = 0; // 角标计数器
 
   @override
   void initState() {
@@ -146,6 +147,70 @@ class _PushTestPageState extends State<PushTestPage> {
     }
   }
 
+  // 设置角标
+  Future<void> _setBadge(int count) async {
+    if (!_isInitialized) return;
+    
+    try {
+      final success = await WxtpushClient.instance.setBadge(count);
+      setState(() {
+        if (success) {
+          _badgeCount = count;
+          _messages.add('🔔 角标已设置为: $count');
+        } else {
+          _messages.add('❌ 设置角标失败');
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _messages.add('❌ 设置角标异常: $e');
+      });
+    }
+  }
+
+  // 增加角标
+  Future<void> _increaseBadge() async {
+    await _setBadge(_badgeCount + 1);
+  }
+
+  // 清除角标
+  Future<void> _clearBadge() async {
+    if (!_isInitialized) return;
+    
+    try {
+      final success = await WxtpushClient.instance.clearBadge();
+      setState(() {
+        if (success) {
+          _badgeCount = 0;
+          _messages.add('✅ 角标已清除');
+        } else {
+          _messages.add('❌ 清除角标失败');
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _messages.add('❌ 清除角标异常: $e');
+      });
+    }
+  }
+
+  // 获取当前角标
+  Future<void> _getBadge() async {
+    if (!_isInitialized) return;
+    
+    try {
+      final count = await WxtpushClient.instance.getBadge();
+      setState(() {
+        _badgeCount = count;
+        _messages.add('📊 当前角标: $count');
+      });
+    } catch (e) {
+      setState(() {
+        _messages.add('❌ 获取角标异常: $e');
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,6 +236,47 @@ class _PushTestPageState extends State<PushTestPage> {
                   child: ElevatedButton(
                     onPressed: _isInitialized ? _clearMessages : null,
                     child: const Text('清空日志'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // 角标管理按钮
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _isInitialized ? _increaseBadge : null,
+                    icon: const Icon(Icons.add, size: 16),
+                    label: Text('角标+1 ($_badgeCount)'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _isInitialized ? _clearBadge : null,
+                    icon: const Icon(Icons.clear, size: 16),
+                    label: const Text('清除角标'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _isInitialized ? _getBadge : null,
+                    icon: const Icon(Icons.info, size: 16),
+                    label: const Text('查询'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
                   ),
                 ),
               ],

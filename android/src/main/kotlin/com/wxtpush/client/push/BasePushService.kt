@@ -18,6 +18,21 @@ abstract class BasePushService(
     abstract fun setAlias(alias: String)
     abstract fun setTags(tags: List<String>)
     
+    /**
+     * 设置应用角标数字
+     * 
+     * @param count 角标数字，0 表示清除角标
+     * @return 操作是否成功
+     */
+    abstract fun setBadge(count: Int): Boolean
+    
+    /**
+     * 获取当前应用角标数字
+     * 
+     * @return 当前角标数字，如果获取失败返回 0
+     */
+    abstract fun getBadge(): Int
+    
     protected fun sendEvent(event: String, data: Map<String, Any?>) {
         // 确保类型安全的事件数据
         val safeData = data.mapValues { (_, value) ->
