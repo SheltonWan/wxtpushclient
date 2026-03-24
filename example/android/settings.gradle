@@ -46,4 +46,5 @@ plugins {
 // 定义项目的模块结构，告诉 Gradle 当前项目包含哪些模块
 // 如果新增模块（如一个本地库），必须在此文件中通过 include声明。
 // 文件修改后需要同步（Sync Project）才能生效。
+rootProject.name = 'wxtpush_example'
 include ":app"
