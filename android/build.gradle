@@ -16,6 +16,8 @@ buildscript {
 
 // 为当前模块显式声明仓库（含内置 vendor-repo），避免外部工程不生效的情况
 repositories {
+    // 关键：优先查本地 vendor-repo，避免 Gradle 尝试访问远端 heytap/oppo 仓库
+    maven { url uri("$projectDir/vendor-repo") }
     google()
     mavenCentral()
     maven { url 'https://developer.huawei.com/repo/' }
@@ -30,8 +32,6 @@ repositories {
     maven { url 'https://jcenter.bintray.com/' }
     maven { url 'https://mirrors.tencent.com/nexus/repository/maven-public/' }
     maven { url 'https://mirrors.huaweicloud.com/repository/maven/' }
-    // 关键：插件内置的本地 Maven 仓库
-    maven { url uri("$projectDir/vendor-repo") }
 }
 
 apply plugin: 'com.android.library'
@@ -104,7 +104,7 @@ dependencies {
     implementation 'com.huawei.hms:hianalytics:6.12.0.300'
     implementation 'com.hihonor.mcs:push:8.0.12.307'
 
-    // ===== 厂商 AAR（来自插件内置仓库） =====
+    // ===== 厂商 AAR（通过本地 vendor-repo Maven 仓库引用，避免直接 files() 导致 AAR 打包失败） =====
     implementation 'com.wxtpush.vendor:xiaomi-push:6.0.1-3rd@aar'
     implementation 'com.wxtpush.vendor:heytap-push:3.7.1@aar'
     implementation 'com.wxtpush.vendor:vivo-push:4.1.0.0@aar'
